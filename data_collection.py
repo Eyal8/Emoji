@@ -49,8 +49,7 @@ def collect_recent_tweets_with_emojies(unicodes, api):
     #Use csv writer
     csvWriter = csv.writer(csvFile)
 
-    for tweet in tweepy.Cursor(api.search,
-                               q = unicode,tweet_mode='extended').items():
+    for tweet in tweepy.Cursor(api.search, q = unicode, tweet_mode='extended', lang='en').items():
 
         # Write a row to the CSV file. I use encode UTF-8
         csvWriter.writerow([tweet.created_at, tweet.full_text.encode('utf-8')])
