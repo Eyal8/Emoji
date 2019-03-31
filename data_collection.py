@@ -4,6 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 from collections import defaultdict
 import got
+import json
 
 def tweepy_connect():
   '''
@@ -66,7 +67,7 @@ def printTweet(descr, t):
 
 
 
-def collect_old_tweets_with_emojies(start_date, end_date, max_tweets):
+def collect_old_tweets_with_emojies(unicodes, start_date, end_date, max_tweets):
   '''
   collect old tweets by specifying a date
   :param start_date: starting date to collect tweets from. format: "yyyy-mm-dd"
@@ -74,25 +75,31 @@ def collect_old_tweets_with_emojies(start_date, end_date, max_tweets):
   :param max_tweets: max tweets to collect in each request
   :return:
   '''
+  for unicode in unicodes.keys():
+    # Example 2 - Get tweets by query search and bound dates
+    tweetCriteria = got.manager.TweetCriteria().setQuerySearch(unicode).setSince(start_date).setUntil(
+      end_date).setMaxTweets(max_tweets)
+    tweet = got.manager.TweetManager.getTweets(tweetCriteria)[0]
+
+    # Open json text file to save the tweets
+    with open(unicode + '.json', 'a') as tf:
+      # Write the json data directly to the file
+      json.dump(tweet, tf)
+    # Alternatively: tf.write(json.dumps(all_data))
+    printTweet("### Example 2 - Get tweets by query search [europe refugees]", tweet)
+
   # Example 1 - Get tweets by username
-  tweetCriteria = got.manager.TweetCriteria().setUsername('barackobama').setMaxTweets(1)
-  tweet = got.manager.TweetManager.getTweets(tweetCriteria)[0]
+  # tweetCriteria = got.manager.TweetCriteria().setUsername('barackobama').setMaxTweets(1)
+  # tweet = got.manager.TweetManager.getTweets(tweetCriteria)[0]
 
-  printTweet("### Example 1 - Get tweets by username [barackobama]", tweet)
-
-  # Example 2 - Get tweets by query search
-  tweetCriteria = got.manager.TweetCriteria().setQuerySearch('europe refugees').setSince("2015-05-01").setUntil(
-    "2015-09-30").setMaxTweets(1)
-  tweet = got.manager.TweetManager.getTweets(tweetCriteria)[0]
-
-  printTweet("### Example 2 - Get tweets by query search [europe refugees]", tweet)
+  #printTweet("### Example 1 - Get tweets by username [barackobama]", tweet)
 
   # Example 3 - Get tweets by username and bound dates
-  tweetCriteria = got.manager.TweetCriteria().setUsername("barackobama").setSince("2015-09-10").setUntil(
-    "2015-09-12").setMaxTweets(1)
-  tweet = got.manager.TweetManager.getTweets(tweetCriteria)[0]
+  #tweetCriteria = got.manager.TweetCriteria().setUsername("barackobama").setSince(start_date).setUntil(
+  #  end_date).setMaxTweets(max_tweets)
+  #tweet = got.manager.TweetManager.getTweets(tweetCriteria)[0]
 
-  printTweet("### Example 3 - Get tweets by username and bound dates [barackobama, '2015-09-10', '2015-09-12']", tweet)
+  #printTweet("### Example 3 - Get tweets by username and bound dates [barackobama, '2015-09-10', '2015-09-12']", tweet)
 
 
 if __name__ == '__main__':
@@ -102,4 +109,5 @@ if __name__ == '__main__':
 # with open('Json_Unicodes.txt', 'w') as file:
 #   file.write(json.dumps(unicodes))
   collect_recent_tweets_with_emojies(unicodes, api)
-  collect_old_tweets_with_emojies('2015-09-10', '2015-09-10', 100)
+
+  collect_old_tweets_with_emojies(unicodes, '2015-09-10', '2016-09-10', 100)
